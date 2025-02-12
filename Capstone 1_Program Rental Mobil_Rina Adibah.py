@@ -557,49 +557,245 @@ def create_mobil():
 
 # Fitur 2: Read - Tampilan Seluruhan Data Mobil
 def read_mobil():
-    print(Fore.YELLOW + '\n=== Daftar Seluruh Mobil ===')
+    # Submenu Read Data Mobil pada Menu Admin
+    while True:
+        print(Fore.CYAN + '''
+=========================================
+         MENU READ DATA MOBIL
+=========================================''' + Fore.YELLOW + '''
+    1. Daftar Aset Mobil
+    2. Cari Mobil Sesuai Kategori''' + Fore.WHITE + '''
     
-    if not Aset_Mobil:
-        # Jika tidak ada mobil dalam data
-        print(Fore.RED + '⚠️  Tidak ada data mobil yang tersedia.')
-    else:
-        while True:
-            # Opsi untuk memilih apakah akan menampilkan semua mobil atau hanya yang tersedia
-            pilihan = input(Fore.YELLOW + "\nIngin melihat semua mobil atau hanya yang tersedia?" + Fore.WHITE + "(ketik 'semua' atau 'tersedia'): ").lower().strip()
-            if pilihan not in ['semua', 'tersedia']:
-                # Jika input tidak valid, berikan kesempatan untuk mengulang
-                print(Fore.RED + "⚠️  Input tidak valid. Silakan ketik 'semua' atau 'tersedia'.")
-                continue  # Kembali ke input
+    9. Kembali ke Menu Admin
+    0. Kembali ke Halaman Utama''' + Fore.CYAN + '''
+=========================================''' + Style.RESET_ALL)
+        
+        pilihan = input(Fore.WHITE + "Masukkan pilihan: " + Style.RESET_ALL)
+        if pilihan == '1':
+            daftar_aset_mobil()
+        elif pilihan == '2':
+            cari_mobil_sesuai_kategori()
+        elif pilihan == '9':
+            return  # Kembali ke Menu Admin
+        elif pilihan == '0':
+            func_menu_awal()
+            return
+        else:
+            print(Fore.RED + "⚠️  Pilihan tidak valid, silakan coba lagi.")
 
-            # Filter mobil berdasarkan pilihan pengguna
-            if pilihan == 'tersedia':
-                mobil_list = [mobil for mobil in Aset_Mobil if mobil['Ketersediaan']]  # Filter yang tersedia
+def daftar_aset_mobil():
+    # Submenu Daftar Aset Mobil
+    while True:
+        print(Fore.CYAN + '''
+=========================================
+         DAFTAR ASET MOBIL
+=========================================''' + Fore.YELLOW + '''
+    1. Daftar Seluruh Aset Mobil
+    2. Daftar Mobil yang Disewa
+    3. Daftar Mobil yang Tersedia''' 
+    + Fore.WHITE + '''
+    
+    9. Kembali ke Menu Admin
+    0. Kembali ke Halaman Utama''' + Fore.CYAN + '''
+=========================================''' + Style.RESET_ALL)
+        
+        pilihan = input(Fore.WHITE + "Masukkan pilihan: " + Style.RESET_ALL)
+        if pilihan == '1':
+            # Menampilkan Seluruh Aset Mobil
+            if not Aset_Mobil:
+                print(Fore.RED + "⚠️  Tidak ada data mobil yang tersedia.")
             else:
-                mobil_list = Aset_Mobil  # Semua mobil
+                headers = ["Plat", "Model", "Tarif Harian", "Warna", "Rating", "Ketersediaan", "Fitur Unggulan"]
+                table_data = []
+                for mobil in Aset_Mobil:
+                    fitur_unggulan = fill(', '.join(mobil['fitur_unggulan']), width=40)
+                    ketersediaan_str = 'Tersedia' if mobil['Ketersediaan'] else 'Tidak Tersedia'
+                    table_data.append([
+                        mobil['Plat'],
+                        mobil['Model'],
+                        f"Rp {mobil['Tarif Harian']}",
+                        mobil['Warna'],
+                        mobil['Rating'],
+                        ketersediaan_str,
+                        fitur_unggulan
+                    ])
+                print(tabulate(table_data, headers=headers, tablefmt="grid"))
+            input(Fore.CYAN + "\nTekan Enter untuk kembali ke Menu Aset Mobil..." + Style.RESET_ALL)
+        
+        elif pilihan == '2':
+            # Menampilkan Daftar Mobil yang Disewa
+            if not List_Mobil_Tersewa:
+                print(Fore.RED + "⚠️  Tidak ada mobil yang sedang disewa.")
+            else:
+                headers = ["No", "Plat", "Model", "Tarif Harian", "Warna", "Durasi Sewa", "Waktu Peminjaman", "Waktu Pengembalian", "Total Biaya"]
+                table_data = []
+                for i, mobil in enumerate(List_Mobil_Tersewa, start=1):
+                    waktu_peminjaman = mobil['Waktu Peminjaman'].strftime('%Y-%m-%d %H:%M:%S')
+                    waktu_pengembalian = mobil['Waktu Pengembalian'].strftime('%Y-%m-%d %H:%M:%S')
+                    table_data.append([
+                        i,
+                        mobil['Plat'],
+                        mobil['Model'],
+                        f"Rp {mobil['Tarif Harian']}",
+                        mobil['Warna'],
+                        f"{mobil['Durasi']} hari",
+                        waktu_peminjaman,
+                        waktu_pengembalian,
+                        f"Rp {mobil['Total Biaya']}"
+                    ])
+                print(tabulate(table_data, headers=headers, tablefmt="grid"))
+            input(Fore.CYAN + "\nTekan Enter untuk kembali ke Menu Aset Mobil..." + Style.RESET_ALL)
+        
+        elif pilihan == '3':
+            # Menampilkan Daftar Mobil yang Tersedia
+            available_mobil = [mobil for mobil in Aset_Mobil if mobil['Ketersediaan']]
+            if not available_mobil:
+                print(Fore.RED + "⚠️  Tidak ada mobil yang tersedia.")
+            else:
+                headers = ["Plat", "Model", "Tarif Harian", "Warna", "Rating", "Fitur Unggulan"]
+                table_data = []
+                for mobil in available_mobil:
+                    fitur_unggulan = fill(', '.join(mobil['fitur_unggulan']), width=40)
+                    table_data.append([
+                        mobil['Plat'],
+                        mobil['Model'],
+                        f"Rp {mobil['Tarif Harian']}",
+                        mobil['Warna'],
+                        mobil['Rating'],
+                        fitur_unggulan
+                    ])
+                print(tabulate(table_data, headers=headers, tablefmt="grid"))
+            input(Fore.CYAN + "\nTekan Enter untuk kembali ke Menu Aset Mobil..." + Style.RESET_ALL)
+        
+        elif pilihan == '9':
+            return  # Kembali ke submenu Read Data Mobil
+        elif pilihan == '0':
+            func_menu_awal()
+            return
+        else:
+            print(Fore.RED + "⚠️  Pilihan tidak valid, silakan coba lagi.")
 
-            if not mobil_list:
-                # Jika tidak ada mobil yang cocok dengan filter
-                print(Fore.RED + f"⚠️  Tidak ada mobil yang {pilihan}.")
-                break  # Keluar dari loop jika tidak ada mobil yang sesuai
+def cari_mobil_sesuai_kategori():
+    # Submenu Cari Mobil Sesuai Kategori (tanpa opsi Tarif Harian)
+    while True:
+        print(Fore.CYAN + '''
+=========================================
+      CARI MOBIL SESUAI KATEGORI
+=========================================''' + Fore.YELLOW + '''
+    1. Plat Mobil
+    2. Model Mobil
+    3. Warna Mobil
+    4. Rating Mobil''' + Fore.WHITE + '''
 
-            headers = ["Plat", "Model", "Tarif Harian", "Warna", "Rating", "Ketersediaan", "Fitur Unggulan"]
-            table_data = []
-
-            # Looping melalui mobil untuk menyiapkan data
-            for mobil in mobil_list:
-                fitur_unggulan = fill(', '.join(mobil['fitur_unggulan']), width=40)  # Bungkus teks menjadi 40 karakter per baris
-                ketersediaan_str = 'Tersedia' if mobil['Ketersediaan'] else 'Tidak Tersedia'
-                
-                # Masukkan data ke dalam tabel
-                table_data.append([mobil['Plat'], mobil['Model'], f"Rp {mobil['Tarif Harian']}", mobil['Warna'], mobil['Rating'], ketersediaan_str, fitur_unggulan])
-
-            # Tampilkan tabel dengan tabulate
-            print(tabulate(table_data, headers=headers, tablefmt="grid"))
-
-            break  # Keluar setelah menampilkan data
-
-    # Kembali ke menu admin setelah selesai
-    input(Fore.CYAN + "\nTekan Enter untuk kembali ke menu admin...")
+    9. Kembali ke Menu Admin
+    0. Kembali ke Halaman Utama''' + Fore.CYAN + '''
+=========================================''' + Style.RESET_ALL)
+        
+        pilihan = input(Fore.WHITE + "Masukkan pilihan: " + Style.RESET_ALL)
+        if pilihan == '1':
+            inputSearchPlat = input(Fore.CYAN + '''
+-----------------------------
+  CARI SESUAI PLAT MOBIL
+-----------------------------        
+    
+Masukkan Plat Mobil yang Dicari: ''' + Style.RESET_ALL)
+            print(Fore.YELLOW + '''
+-----------------------------
+ DAFTAR BERDASARKAN PLAT
+-----------------------------''' + Style.RESET_ALL)
+            header = "| Plat   | Model           | Tarif Harian    | Warna    | Rating |"
+            print(Fore.WHITE + header)
+            print("=" * len(header))
+            found = False
+            for mobil in Aset_Mobil:
+                if mobil['Plat'].lower() == inputSearchPlat.lower():
+                    print(f"| {mobil['Plat']:<6} | {mobil['Model']:<15} | Rp {mobil['Tarif Harian']:<13} | {mobil['Warna']:<8} | {mobil['Rating']:<6} |")
+                    found = True
+            if not found:
+                print(Fore.RED + "Data tidak ditemukan.")
+            input(Fore.CYAN + "\nTekan Enter untuk kembali ke Menu Cari..." + Style.RESET_ALL)
+        
+        elif pilihan == '2':
+            inputSearchModel = input(Fore.CYAN + '''
+-----------------------------
+  CARI SESUAI MODEL MOBIL
+-----------------------------        
+    
+Masukkan Model Mobil yang Dicari: ''' + Style.RESET_ALL)
+            print(Fore.YELLOW + '''
+-----------------------------
+ DAFTAR BERDASARKAN MODEL
+-----------------------------''' + Style.RESET_ALL)
+            header = "| Plat   | Model           | Tarif Harian    | Warna    | Rating |"
+            print(Fore.WHITE + header)
+            print("=" * len(header))
+            found = False
+            for mobil in Aset_Mobil:
+                if mobil['Model'].lower() == inputSearchModel.lower():
+                    print(f"| {mobil['Plat']:<6} | {mobil['Model']:<15} | Rp {mobil['Tarif Harian']:<13} | {mobil['Warna']:<8} | {mobil['Rating']:<6} |")
+                    found = True
+            if not found:
+                print(Fore.RED + "Data tidak ditemukan.")
+            input(Fore.CYAN + "\nTekan Enter untuk kembali ke Menu Cari..." + Style.RESET_ALL)
+        
+        elif pilihan == '3':
+            inputSearchWarna = input(Fore.CYAN + '''
+-----------------------------
+  CARI SESUAI WARNA MOBIL
+-----------------------------        
+    
+Masukkan Warna Mobil yang Dicari: ''' + Style.RESET_ALL)
+            print(Fore.YELLOW + '''
+-----------------------------
+ DAFTAR BERDASARKAN WARNA
+-----------------------------''' + Style.RESET_ALL)
+            header = "| Plat   | Model           | Tarif Harian    | Warna    | Rating |"
+            print(Fore.WHITE + header)
+            print("=" * len(header))
+            found = False
+            for mobil in Aset_Mobil:
+                if mobil['Warna'].lower() == inputSearchWarna.lower():
+                    print(f"| {mobil['Plat']:<6} | {mobil['Model']:<15} | Rp {mobil['Tarif Harian']:<13} | {mobil['Warna']:<8} | {mobil['Rating']:<6} |")
+                    found = True
+            if not found:
+                print(Fore.RED + "Data tidak ditemukan.")
+            input(Fore.CYAN + "\nTekan Enter untuk kembali ke Menu Cari..." + Style.RESET_ALL)
+        
+        elif pilihan == '4':
+            inputSearchRating = input(Fore.CYAN + '''
+-----------------------------
+  CARI SESUAI RATING MOBIL
+-----------------------------        
+    
+Masukkan Rating Mobil yang Dicari: ''' + Style.RESET_ALL)
+            try:
+                search_rating = float(inputSearchRating)
+            except ValueError:
+                print(Fore.RED + "Input tidak valid. Harus berupa angka desimal.")
+                continue
+            print(Fore.YELLOW + '''
+-----------------------------
+ DAFTAR BERDASARKAN RATING
+-----------------------------''' + Style.RESET_ALL)
+            header = "| Plat   | Model           | Tarif Harian    | Warna    | Rating |"
+            print(Fore.WHITE + header)
+            print("=" * len(header))
+            found = False
+            for mobil in Aset_Mobil:
+                if abs(mobil['Rating'] - search_rating) < 0.01:
+                    print(f"| {mobil['Plat']:<6} | {mobil['Model']:<15} | Rp {mobil['Tarif Harian']:<13} | {mobil['Warna']:<8} | {mobil['Rating']:<6} |")
+                    found = True
+            if not found:
+                print(Fore.RED + "Data tidak ditemukan.")
+            input(Fore.CYAN + "\nTekan Enter untuk kembali ke Menu Cari..." + Style.RESET_ALL)
+        
+        elif pilihan == '9':
+            return  # Kembali ke Menu Read Data Mobil
+        elif pilihan == '0':
+            func_menu_awal()
+            return
+        else:
+            print(Fore.RED + "⚠️  Pilihan tidak valid, silakan coba lagi.")
 
 # Fitur 3: Update - Perbarui Data Mobil
 def update_mobil():
@@ -730,9 +926,10 @@ def delete_mobil():
 # ===================================================================================================================================== #
 def func_menu_awal():
     while True:
-        pilihan_diri = input(Fore.YELLOW + '''    
+        try:
+            pilihan_diri = input(Fore.YELLOW + '''    
       === SELAMAT DATANG ===''' + Fore.CYAN + '''
->>> Sewa Mobilmu Sekarang Juga <<<'''+ Fore.MAGENTA + '''
+>>> Sewa Mobilmu Sekarang Juga <<<''' + Fore.MAGENTA + '''
 ----------------------------------''' +                             
         Fore.YELLOW + ''' 
 >>> KAMU MAU LOGIN SEBAGAI APA <<<''' + Fore.WHITE + '''
@@ -740,17 +937,22 @@ def func_menu_awal():
         1. Pelanggan 🚗  
           2. Admin 🛠️''' + Fore.MAGENTA + '''
 
-----------------------------------''' + Fore.WHITE +'''
+----------------------------------''' + Fore.WHITE + '''
 pilih menu: ''' + Style.RESET_ALL)
-    
+        except KeyboardInterrupt:
+            print(Fore.RED + "\nProgram dihentikan oleh pengguna. Sampai jumpa!")
+            break  # Keluar dari loop
+
         if pilihan_diri == '1':
             while True:
-            # Pilihan untk pelanggan: Sign Up atau Login
                 print('''                                            
 1. 📝 SIGN UP
 2. 🔑 LOGIN ''') 
-                pilihan = input(Fore.MAGENTA + '''pilih menu: ''' + Style.RESET_ALL)
-                    
+                try:
+                    pilihan = input(Fore.MAGENTA + '''pilih menu: ''' + Style.RESET_ALL)
+                except KeyboardInterrupt:
+                    print(Fore.RED + "\nProgram dihentikan oleh pengguna. Sampai jumpa!")
+                    return
                 if pilihan == '1':
                     func_sign_up()
                     break
@@ -759,24 +961,8 @@ pilih menu: ''' + Style.RESET_ALL)
                     break
                 else:
                     print(Fore.RED + '⚠️  Pilihan nggak ada nih. Cek lagi yuk!')
-                    
         elif pilihan_diri == '2':
             func_login_admin()
-
         else:
             print(Fore.RED + '⚠️  Pilihan nggak ada nih. Cek lagi yuk!')                               
 func_menu_awal()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
